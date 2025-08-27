@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { ListItem } from "./components/ListItem";
+import axios from "axios";
+import type { User } from "./types/user";
 
-function App() {
+export const App = () => {
+  // 取得したユーザー情報
+  const [users, setUsers] = useState<User[]>([]);
+
+  // 画面表示時にユーザー情報取得
+  // ※実際にはこのエンドポイントは存在しないので注意
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/customnote/users/")
+      .then((res) => {
+        setUsers(res.data); // axios は自動で JSON をパースしてくれる
+      })
+      .catch((err) => {
+        console.error("ユーザー取得エラー:", err.message);
+        console.error("詳細:", err.toJSON?.());
+      });
+
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {users.map((user) => (
+        <ListItem
+          key={user.id} // React が要素を効率的に再描画するための目印
+          id={user.id}
+          nickname={user.nickname}
+        />
+      ))}
     </div>
   );
-}
-
-export default App;
+};
